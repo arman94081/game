@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jamkhed Type – Typing Game</title>
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#0f1630; --text:#e8ecff; --accent:#5eead4; --danger:#ff6b6b; --ok:#86efac;
+      --muted:#99a1c0; --glow:0 0 30px rgba(94,234,212,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Noto Sans",sans-serif;background:radial-gradient(1200px 800px at 70% -20%,#1a2250 0%,#0b1020 60%,#070a16 100%);color:var(--text);overflow:hidden}
+
+    /* HUD */
+    .hud{position:fixed;inset:0;pointer-events:none}
+    .row{display:flex;gap:12px;align-items:center}
+    .top{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:center}
+    .pill{background:rgba(255,255,255,.06);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.08);padding:8px 12px;border-radius:999px;box-shadow:var(--glow)}
+    .title{font-weight:800;letter-spacing:.6px}
+    .accent{color:var(--accent)}
+    .stat{font-variant-numeric:tabular-nums}
+    .heart{filter:drop-shadow(0 0 8px rgba(255,107,107,.6))}
+
+    canvas{display:block;position:fixed;inset:0;width:100vw;height:100vh}
+
+    /* Screens */
+    .screen{position:fixed;inset:0;display:grid;place-items:center;background:linear-gradient(180deg, rgba(7,10,22,.6), rgba(7,10,22,.9));}
+    .card{width:min(720px,92vw);border-radius:24px;padding:28px;box-shadow:0 15px 80px rgba(0,0,0,.5),var(--glow);background:linear-gradient(180deg,#121a3d,#0c132f);border:1px solid rgba(255,255,255,.1)}
+    h1{margin:0 0 8px;font-size:clamp(28px,5vw,44px)}
+    h2{margin:0 0 12px;font-size:clamp(18px,3.4vw,24px);color:var(--muted)}
+    .btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+    button{pointer-events:auto;border:0;border-radius:14px;padding:12px 18px;font-weight:700;letter-spacing:.3px;background:linear-gradient(180deg,#27f0cb,#1db9d7);color:#04222b;box-shadow:0 12px 30px rgba(29,185,215,.35);cursor:pointer}
+    button.secondary{background:#172043;color:#d9e2ff;border:1px solid rgba(255,255,255,.12);box-shadow:none}
+    .small{font-size:12px;color:var(--muted)}
+    .kbd{padding:.1em .45em;border-radius:.5em;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.04)}
+    a.link{color:var(--accent);text-decoration:none;border-bottom:1px dashed rgba(94,234,212,.5)}
+
+    /* Floating help */
+    .help{position:fixed;bottom:10px;left:10px;display:flex;gap:8px;align-items:center;pointer-events:none}
+    .help .pill{pointer-events:auto}
+  </style>
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <div class="hud" aria-hidden="true">
+    <div class="top">
+      <div class="row pill title">💥 <span style="margin-left:8px">Jamkhed <span class="accent">Type</span></span></div>
+      <div class="row" style="gap:8px">
+        <div class="pill stat" id="score">Score: 0</div>
+        <div class="pill stat" id="level">Level: 1</div>
+        <div class="pill stat" id="accuracy">Acc: 100%</div>
+        <div class="pill stat" id="lives">❤️❤️❤️</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="startScreen">
+    <div class="card">
+      <h1>Jamkhed <span class="accent">Type</span></h1>
+      <h2>Typing game – शब्द टाईप करा, उल्कांना उडवा! (Like ZType, नाव बदललेले)</h2>
+      <ul class="small" style="line-height:1.6">
+        <li>कीबोर्डवर शब्द टाईप करा. एकाच वेळी एक लक्ष्य (auto‑lock).</li>
+        <li><span class="kbd">Backspace</span> चुकीचा अक्षर असल्यास मागे या, <span class="kbd">Space</span> ने नवीन लक्ष्य निवड.</li>
+        <li>शब्द खाली पोहोचला की लाईफ कमी होते. 3 लाईफ संपल्यावर गेम ओव्हर.</li>
+        <li><span class="kbd">P</span> = Pause / Resume</li>
+      </ul>
+      <div class="btns">
+        <button id="startBtn">▶️ Start Game</button>
+        <button class="secondary" id="howBtn">How to Play</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="howScreen" style="display:none">
+    <div class="card">
+      <h1>How to Play</h1>
+      <p class="small">वरून शब्द खाली येतात. ज्या शब्दाचा पहिला अक्षर तुम्ही टाईप कराल तो लक्ष्य बनतो. पूर्ण शब्द टाईप झाला की तो फुटतो आणि तुम्हाला गुण मिळतात. अवघडपणा हळूहळू वाढतो.</p>
+      <div class="btns">
+        <button id="backBtn" class="secondary">⬅ Back</button>
+        <button id="startBtn2">▶️ Start Now</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="gameOver" style="display:none">
+    <div class="card" style="text-align:center">
+      <h1>Game <span class="accent">Over</span></h1>
+      <h2 id="finalStats">Score: 0 • Level: 1 • Accuracy: 100%</h2>
+      <div class="btns" style="justify-content:center">
+        <button id="restartBtn">🔁 Play Again</button>
+        <a class="link" href="https://arman94081.github.io/masale/" target="_blank" rel="noopener">माझी वेबसाईट (Tikjat Masale)</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="help">
+    <div class="pill small">Tip: Mobile साठी कीबोर्ड auto‑open. Desktop वर थेट टाईप करा.</div>
+  </div>
+
+  <!-- Hidden input to summon mobile keyboard -->
+  <input id="shadowInput" style="position:fixed;opacity:0;pointer-events:none" aria-hidden="true" />
+
+  <script>
+    // ===== Utilities =====
+    const rand = (a,b)=>Math.random()*(b-a)+a;
+    const choice = arr => arr[(Math.random()*arr.length)|0];
+    const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+
+    // ===== Word list (mix EN + local flavor) =====
+    const WORDS = `jamkhed tikjat masale spice market taste rocket alpha beta gamma delta pixel ninja turbo galaxy comet meteor neon cyber rapid focus blaze swift quill maple mango marathi shivneri pune solapur beed jalna aurangabad satara kolhapur nashik latur jalgaon akola dhule parbhani hingoli osmanabad nagpur mumbai thane raigad sangli ratnagiri sindhudurg aurangabad auric kharad phulambri paithan ghodegaon supa sangamner ahmednagar baramati indapur karmala daund shirur shevgaon pathardi jamkheda tikhat lavang dalchini shengdana mirchi halad hing jeera dhana kala chaha poli bhakri modak puranpoli ukdiche bhaji bhurji batata`.split(/\s+/);
+
+    // ===== Canvas setup =====
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    let W=innerWidth,H=innerHeight; canvas.width=W; canvas.height=H;
+    addEventListener('resize',()=>{W=innerWidth;H=innerHeight;canvas.width=W;canvas.height=H});
+
+    // ===== Game state =====
+    let state='idle'; // idle|playing|paused|over
+    let words=[], particles=[];
+    let score=0, level=1, lives=3, typed=0, hits=0;
+    let tick=0, spawnCooldown=0;
+    let target=null; // current target word object
+
+    const HUD={
+      score: document.getElementById('score'),
+      level: document.getElementById('level'),
+      acc: document.getElementById('accuracy'),
+      lives: document.getElementById('lives')
+    };
+
+    function reset(){
+      words.length=0; particles.length=0; score=0; level=1; lives=3; typed=0; hits=0; tick=0; spawnCooldown=0; target=null;
+      updateHUD();
+    }
+
+    function updateHUD(){
+      HUD.score.textContent = `Score: ${score}`;
+      HUD.level.textContent = `Level: ${level}`;
+      const acc = typed? Math.round((hits/typed)*100):100;
+      HUD.acc.textContent = `Acc: ${acc}%`;
+      HUD.lives.textContent = '❤️'.repeat(lives) + '🤍'.repeat(3-lives);
+    }
+
+    // ===== Audio (tiny synth with WebAudio) =====
+    const audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    function beep(freq=440,dur=0.06,type='square',gain=.03){
+      const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain();
+      o.type=type; o.frequency.value=freq; o.connect(g); g.connect(audioCtx.destination);
+      g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(gain,t+.005); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+      o.start(t); o.stop(t+dur+.02);
+    }
+    const sfx={
+      type:()=>beep(720,0.05,'square',.04),
+      hit:()=>{beep(200,0.08,'sawtooth',.05); setTimeout(()=>beep(120,0.12,'sawtooth',.04),40)},
+      miss:()=>beep(120,0.12,'triangle',.06),
+      level:()=>{beep(880,0.08,'square',.05); setTimeout(()=>beep(1320,0.08,'square',.04),90)}
+    };
+
+    // ===== Entities =====
+    function spawnWord(){
+      const w = choice(WORDS);
+      const speed = 0.35 + level*0.06 + rand(-0.05,0.05);
+      const x = clamp(rand(80, W-80), 60, W-60);
+      const y = -20;
+      words.push({w, x, y, i:0, speed, dead:false});
+    }
+
+    function burst(x,y,color){
+      for(let i=0;i<18;i++){
+        particles.push({x,y, vx:rand(-2,2), vy:rand(-2,2), life:rand(20,40), color});
+      }
+    }
+
+    // ===== Input handling =====
+    const shadow = document.getElementById('shadowInput');
+    function focusMobile(){ shadow.focus(); shadow.setSelectionRange(shadow.value.length, shadow.value.length); }
+
+    window.addEventListener('keydown', (e)=>{
+      if(state!=='playing'){
+        if(e.key.toLowerCase()==='p' && state==='paused'){ resumeGame(); }
+        return; 
+      }
+      if(e.key===' '){ target=null; return; }
+      if(e.key==='Backspace'){
+        if(target && target.i>0){ target.i--; typed++; }
+        return;
+      }
+      const ch = e.key.length===1 ? e.key.toLowerCase() : '';
+      if(!ch) return;
+      typed++;
+      // pick target if none
+      if(!target){
+        target = words.find(o=>!o.dead && o.w.startsWith(ch));
+      }
+      if(!target) { // no matching word - just a miss sound, no life loss
+        sfx.miss();
+        updateHUD();
+        return;
+      }
+      // match next char
+      if(target.w[target.i]===ch){
+        target.i++;
+        hits++; sfx.type();
+        // explosion when completed
+        if(target.i>=target.w.length){
+          target.dead=true; burst(target.x, target.y, '#5eead4');
+          sfx.hit();
+          score += 10 + Math.floor(level*1.5);
+          updateHUD();
+          target=null;
+        }
+      } else { // wrong char on active target
+        sfx.miss();
+      }
+    });
+
+    // ===== Game Loop =====
+    function step(){
+      requestAnimationFrame(step);
+      if(state!=='playing' && state!=='paused') return render();
+      if(state==='paused') return render();
+
+      tick++;
+      // spawn
+      spawnCooldown -= 1;
+      const want = Math.max(1, Math.floor(level/2));
+      if(spawnCooldown<=0 && words.length < 4 + Math.floor(level*0.7)){ 
+        spawnWord();
+        spawnCooldown = Math.max(45, 150 - level*10);
+      }
+
+      // progress difficulty
+      if(tick%1600===0){ level++; sfx.level(); }
+
+      // update words
+      const bottom = H-60;
+      for(const o of words){
+        if(o.dead) continue;
+        o.y += o.speed;
+        if(o.y >= bottom){
+          // missed word
+          o.dead=true; lives--; burst(o.x, bottom, '#ff6b6b'); sfx.miss();
+          if(lives<=0){ endGame(); return; }
+          updateHUD();
+          if(target===o) target=null;
+        }
+      }
+
+      // cleanup particles
+      particles = particles.filter(p=>p.life-->0);
+      words = words.filter(o=>!o.dead || o.i<o.w.length);
+
+      render();
+    }
+
+    // ===== Render =====
+    function render(){
+      // background stars
+      ctx.clearRect(0,0,W,H);
+      ctx.fillStyle = '#070a16';
+      ctx.fillRect(0,0,W,H);
+      // parallax stars
+      for(let i=0;i<150;i++){
+        const y=((tick*0.6 + i*50)%H); const x=(i*77)%W; const r=(i%3)*.6+.4;
+        ctx.globalAlpha = 0.25 + (i%3)*0.15;
+        ctx.fillStyle='#9ab1ff'; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+      }
+      ctx.globalAlpha=1;
+
+      // draw words
+      for(const o of words){
+        if(o.dead) continue;
+        const targetted = (o===target);
+        const px = o.x, py = o.y;
+        // shadow glow
+        ctx.font = '700 26px system-ui,Segoe UI,Roboto';
+        ctx.textAlign='center';
+        ctx.textBaseline='middle';
+        ctx.fillStyle = targetted? 'rgba(94,234,212,.18)' : 'rgba(255,255,255,.08)';
+        ctx.beginPath(); ctx.arc(px, py, 34, 0, Math.PI*2); ctx.fill();
+        // full text (remaining)
+        const left = o.w.slice(o.i);
+        const done = o.w.slice(0,o.i);
+        // completed part
+        if(done){
+          ctx.fillStyle = '#86efac';
+          ctx.fillText(done.toUpperCase(), px - ctx.measureText(left.toUpperCase()).width/2, py);
+        }
+        // remaining part
+        ctx.fillStyle = targetted ? '#e8ecff' : '#c6cffd';
+        ctx.fillText(left.toUpperCase(), px + ctx.measureText(done.toUpperCase()).width/2, py);
+      }
+
+      // draw particles
+      for(const p of particles){
+        ctx.fillStyle = p.color; ctx.globalAlpha = clamp(p.life/40,0,1);
+        ctx.fillRect(p.x, p.y, 3,3); p.x+=p.vx; p.y+=p.vy;
+      }
+      ctx.globalAlpha=1;
+    }
+
+    // ===== Screens & controls =====
+    const startScreen = document.getElementById('startScreen');
+    const howScreen = document.getElementById('howScreen');
+    const gameOver = document.getElementById('gameOver');
+    const finalStats = document.getElementById('finalStats');
+
+    function startGame(){
+      reset();
+      state='playing'; startScreen.style.display='none'; howScreen.style.display='none'; gameOver.style.display='none';
+      focusMobile(); audioCtx.resume?.();
+    }
+    function endGame(){
+      state='over';
+      finalStats.textContent = `Score: ${score} • Level: ${level} • Accuracy: ${typed?Math.round((hits/typed)*100):100}%`;
+      gameOver.style.display='grid';
+    }
+    function pauseGame(){ if(state==='playing'){ state='paused'; }}
+    function resumeGame(){ if(state==='paused'){ state='playing'; focusMobile(); audioCtx.resume?.(); }}
+
+    document.getElementById('startBtn').onclick=startGame;
+    document.getElementById('startBtn2').onclick=startGame;
+    document.getElementById('restartBtn').onclick=()=>{startGame()};
+    document.getElementById('howBtn').onclick=()=>{startScreen.style.display='none'; howScreen.style.display='grid'};
+    document.getElementById('backBtn').onclick=()=>{howScreen.style.display='none'; startScreen.style.display='grid'};
+
+    window.addEventListener('keydown',e=>{ if(e.key.toLowerCase()==='p'){ if(state==='playing') pauseGame(); else if(state==='paused') resumeGame(); }});
+
+    // Start loop
+    step();
+
+    // Auto-focus for mobile a moment after load
+    setTimeout(()=>focusMobile(),500);
+  </script>
+</body>
+</html>
