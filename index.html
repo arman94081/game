@@ -16,17 +16,59 @@
       display: block;
       margin: 20px auto;
       border: 2px solid white;
+      touch-action: none; 
     }
     h2 {
       margin-top: 15px;
     }
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background: limegreen;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: darkgreen;
+    }
+
+    
+    #controls {
+      display: flex;
+      justify-content: center;
+      margin-top: 15px;
+      gap: 20px;
+    }
+    .ctrlBtn {
+      width: 80px;
+      height: 50px;
+      font-size: 20px;
+      border-radius: 10px;
+      background: #444;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .ctrlBtn:active {
+      background: #666;
+    }
   </style>
 </head>
 <body>
-  <h2>🎮 Catch the Ball - Use ⬅️ ➡️ Arrows</h2>
+  <h2>🎮 Catch the Ball - Use ⬅️ ➡️ / Touch / Swipe</h2>
   <canvas id="gameCanvas" width="400" height="500"></canvas>
+  <button id="restartBtn" style="display:none;">Restart Game</button>
 
-  <!-- 🔊 Sound Files -->
+  
+  <div id="controls">
+    <button class="ctrlBtn" id="leftBtn">⬅️</button>
+    <button class="ctrlBtn" id="rightBtn">➡️</button>
+  </div>
+
+  
   <audio id="catchSound" src="https://www.fesliyanstudios.com/play-mp3/387"></audio>
   <audio id="gameOverSound" src="https://www.fesliyanstudios.com/play-mp3/667"></audio>
 
@@ -34,14 +76,20 @@
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
-    let basket = { x: 160, y: 450, width: 80, height: 15, speed: 20 };
-    let ball = { x: Math.random() * 380, y: 0, radius: 10, speed: 3 };
-    let score = 0;
-    let gameOver = false;
-
-    // Sounds
+    let basket, ball, score, gameOver;
     const catchSound = document.getElementById("catchSound");
     const gameOverSound = document.getElementById("gameOverSound");
+    const restartBtn = document.getElementById("restartBtn");
+    const leftBtn = document.getElementById("leftBtn");
+    const rightBtn = document.getElementById("rightBtn");
+
+    function init() {
+      basket = { x: 160, y: 450, width: 80, height: 15, speed: 20 };
+      ball = { x: Math.random() * 380, y: 0, radius: 10, speed: 3 };
+      score = 0;
+      gameOver = false;
+      restartBtn.style.display = "none";
+    }
 
     function drawBasket() {
       ctx.fillStyle = "lime";
@@ -59,26 +107,27 @@
     function updateBall() {
       ball.y += ball.speed;
 
-      // Catch
+      
       if (
         ball.y + ball.radius >= basket.y &&
         ball.x > basket.x &&
         ball.x < basket.x + basket.width
       ) {
         score++;
-        catchSound.play(); // 🔊 play sound
+        catchSound.play();
         resetBall();
       }
 
-      // Miss → Direct Game Over
+      
       if (ball.y > canvas.height) {
         gameOver = true;
-        gameOverSound.play(); // 🔊 play game over sound
+        gameOverSound.play();
+        restartBtn.style.display = "inline-block";
       }
     }
 
     function resetBall() {
-      ball.x = Math.random() * 380;
+      ball.x = Math.random() * (canvas.width - 20) + 10;
       ball.y = 0;
       ball.speed = 3 + Math.random() * 2;
     }
@@ -90,3 +139,64 @@
     }
 
     function drawGameOver() {
+      ctx.fillStyle = "red";
+      ctx.font = "28px Arial";
+      ctx.fillText("GAME OVER", 120, 250);
+      ctx.fillStyle = "yellow";
+      ctx.fillText("Final Score: " + score, 120, 290);
+    }
+
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (!gameOver) {
+        drawBasket();
+        drawBall();
+        updateBall();
+        drawScore();
+      } else {
+        drawGameOver();
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft" && basket.x > 0) basket.x -= basket.speed;
+      if (e.key === "ArrowRight" && basket.x + basket.width < canvas.width)
+        basket.x += basket.speed;
+    });
+
+    
+    leftBtn.addEventListener("touchstart", () => {
+      if (basket.x > 0) basket.x -= basket.speed;
+    });
+    rightBtn.addEventListener("touchstart", () => {
+      if (basket.x + basket.width < canvas.width) basket.x += basket.speed;
+    });
+
+    
+    let touchX = null;
+    canvas.addEventListener("touchstart", (e) => {
+      touchX = e.touches[0].clientX;
+    });
+    canvas.addEventListener("touchmove", (e) => {
+      let currentX = e.touches[0].clientX;
+      let deltaX = currentX - touchX;
+      basket.x += deltaX * 0.5; 
+      if (basket.x < 0) basket.x = 0;
+      if (basket.x + basket.width > canvas.width) basket.x = canvas.width - basket.width;
+      touchX = currentX;
+    });
+
+    restartBtn.addEventListener("click", () => {
+      init();
+    });
+
+    
+    init();
+    gameLoop();
+  </script>
+</body>
+</html>
