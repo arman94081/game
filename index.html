@@ -1,202 +1,372 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="mr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catch the Ball</title>
-  <style>
-    body {
-      text-align: center;
-      background: black;
-      color: white;
-      font-family: Arial, sans-serif;
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sorry Card - Arman to OVI mam </title>
+<style>
+  body {
+    margin: 0;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    max-width: 850px;
+  }
+  
+  .card {
+    background: white;
+    width: 100%;
+    max-width: 400px;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  
+  .left-card {
+    border-top: 5px solid #e74c3c;
+  }
+  
+  .right-card {
+    border-top: 5px solid #3498db;
+  }
+  
+  h1 {
+    color: #e74c3c;
+    font-size: 24px;
+    margin-bottom: 15px;
+  }
+  
+  h2 {
+    color: #3498db;
+    font-size: 22px;
+    margin-bottom: 15px;
+  }
+  
+  .photo-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 20px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+  }
+  
+  .photo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #e74c3c;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  
+  .photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .info {
+    text-align: left;
+  }
+  
+  .name {
+    color: #e74c3c;
+    font-weight: bold;
+    font-size: 18px;
+    margin: 0;
+  }
+  
+  .insta {
+    color: #e4405f;
+    margin: 5px 0;
+    font-size: 14px;
+  }
+  
+  p {
+    color: #333;
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 15px;
+  }
+  
+  .fact-box {
+    background: #e8f4fc;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+    border-left: 4px solid #3498db;
+  }
+  
+  .fact-title {
+    color: #2c3e50;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+  
+  button {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 15px;
+    width: 100%;
+    transition: all 0.3s;
+  }
+  
+  button:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+  }
+  
+  .status {
+    font-style: italic;
+    color: #666;
+    margin-top: 20px;
+    font-size: 14px;
+  }
+  
+  .english-section {
+    background: #fff8e1;
+    padding: 12px;
+    border-radius: 8px;
+    margin: 15px 0;
+    border-left: 4px solid #ffb300;
+    font-size: 14px;
+    text-align: left;
+  }
+  
+  .english-title {
+    color: #e65100;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .instagram-message {
+    background: linear-gradient(45deg, #833AB4, #E1306C, #F56040);
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    margin: 15px 0;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  
+  .instagram-message:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 15px rgba(131, 58, 180, 0.3);
+  }
+  
+  .auto-message-btn {
+    background: linear-gradient(45deg, #25D366, #128C7E);
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    margin: 10px 0;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    width: 100%;
+  }
+  
+  .auto-message-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+  }
+  
+  @media (max-width: 768px) {
+    .container {
+      flex-direction: column;
+      align-items: center;
     }
-    canvas {
-      background: linear-gradient(to bottom, #001f4d, #000000);
-      display: block;
-      margin: 20px auto;
-      border: 2px solid white;
-      touch-action: none; 
+    .card {
+      max-width: 100%;
     }
-    h2 {
-      margin-top: 15px;
-    }
-    button {
-      padding: 10px 20px;
-      margin-top: 10px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      background: limegreen;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background: darkgreen;
-    }
-
-    
-    #controls {
-      display: flex;
-      justify-content: center;
-      margin-top: 15px;
-      gap: 20px;
-    }
-    .ctrlBtn {
-      width: 80px;
-      height: 50px;
-      font-size: 20px;
-      border-radius: 10px;
-      background: #444;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    .ctrlBtn:active {
-      background: #666;
-    }
-  </style>
+  }
+</style>
 </head>
 <body>
-  <h2>🎮 Catch the Ball - Use ⬅️ ➡️ / Touch / Swipe</h2>
-  <canvas id="gameCanvas" width="400" height="500"></canvas>
-  <button id="restartBtn" style="display:none;">Restart Game</button>
+  <div class="container">
+    <!-- Left Card - Apology (Marathi + English) -->
+    <div class="card left-card">
+      <h1>माफ करा Nagesh 🙏</h1>
+      
+      <div class="photo-section">
+        <div class="photo">
+          <img src="arman.img" alt="Arman">
+        </div>
+        <div class="info">
+          <p class="name">Arman</p>
+          <p class="insta">Instagram: mr_armaan_2030s</p>
+          <p style="color: #777; font-size: 14px;">Your Friend</p>
+        </div>
+      </div>
+      
+      <p>आज 4pm ला Nagesh मंदिरावर भेटण्याचे वचन दिले होते. अचानक काम आल्यामुळे मी येऊ शकलो नाही. तुमचा वेळ वाया गेल्याबद्दल खेद आहे.</p>
+      
+      <div class="english-section">
+        <div class="english-title">In English:</div>
+        I had promised to meet at Nagesh Temple at 4pm today. Due to sudden work, I couldn't come. I'm sorry for wasting your time.
+      </div>
+      
+      <button onclick="acceptApology()">🤝 मला माफ करा / Forgive Me</button>
+      
+      <p class="status" id="apologyStatus">Waiting for your forgiveness...</p>
+      
+      <!-- Auto Message Button (Initially Hidden) -->
+      <button class="auto-message-btn" id="autoMessageBtn" style="display: none;" onclick="sendAutoInstagramMessage()">
+        📱 माफी दिल्याबद्दल Instagram वर मेसेज पाठवा<br>
+        <small>Send me a message on Instagram for forgiveness</small>
+      </button>
+    </div>
+    
+    <!-- Right Card - Message (ONLY ENGLISH) -->
+    <div class="card right-card">
+      <h2>My Message to You 💌</h2>
+      
+      <div class="fact-box">
+        <div class="fact-title">My Thoughts About Friendship:</div>
+        "True friendship means understanding each other even through mistakes. Today I made a mistake, but my friendship with you remains forever."
+      </div>
+      
+      <p><strong>3 Promises to You:</strong></p>
+      <p>1. This mistake won't happen again</p>
+      <p>2. I'll always respect you</p>
+      <p>3. I'm waiting to meet you again</p>
+      
+      <div class="instagram-message" onclick="openInstagramProfile()">
+        📸 <strong>Follow me on Instagram</strong><br>
+        <small>Instagram: mr_armaan_2030s</small>
+      </div>
+      
+      <div class="fact-box">
+        <div class="fact-title">📞 Contact Details:</div>
+        Instagram: <strong>mr_armaan_2030s</strong><br>
+        <small>Click the "Forgive Me" button to send me a message!</small>
+      </div>
+      
+      <p style="color: #2c3e50; font-weight: bold;">
+        Your friendship is precious to me ❤️<br>
+        <small>You mean a lot to me as a friend</small>
+      </p>
 
-  
-  <div id="controls">
-    <button class="ctrlBtn" id="leftBtn">⬅️</button>
-    <button class="ctrlBtn" id="rightBtn">➡️</button>
+      <div class="english-section">
+        <div class="english-title">Note for You:</div>
+        If you forgive me, please send me a message on Instagram. I'd love to hear from you!
+      </div>
+    </div>
   </div>
 
+<script>
+function acceptApology() {
+  const button = document.querySelector('.left-card button');
+  const status = document.getElementById('apologyStatus');
+  const autoMessageBtn = document.getElementById('autoMessageBtn');
   
-  <audio id="catchSound" src="https://www.fesliyanstudios.com/play-mp3/387"></audio>
-  <audio id="gameOverSound" src="https://www.fesliyanstudios.com/play-mp3/667"></audio>
-
-  <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-
-    let basket, ball, score, gameOver;
-    const catchSound = document.getElementById("catchSound");
-    const gameOverSound = document.getElementById("gameOverSound");
-    const restartBtn = document.getElementById("restartBtn");
-    const leftBtn = document.getElementById("leftBtn");
-    const rightBtn = document.getElementById("rightBtn");
-
-    function init() {
-      basket = { x: 160, y: 450, width: 80, height: 15, speed: 20 };
-      ball = { x: Math.random() * 380, y: 0, radius: 10, speed: 3 };
-      score = 0;
-      gameOver = false;
-      restartBtn.style.display = "none";
+  // Change button
+  button.innerHTML = '✅ Thank You! Forgiven';
+  button.style.background = '#27ae60';
+  button.disabled = true;
+  button.onclick = null;
+  
+  // Change status
+  status.textContent = '✅ Apology Accepted! Thank You 🙏';
+  status.style.color = '#27ae60';
+  status.style.fontWeight = 'bold';
+  
+  // Show auto message button
+  autoMessageBtn.style.display = 'block';
+  
+  // Confetti effect
+  createSimpleConfetti();
+  
+  // Immediately ask for Instagram message
+  setTimeout(() => {
+    if(confirm('Thank you so much! 🙏\n\nWould you like to send me a message on Instagram for forgiveness?')) {
+      sendAutoInstagramMessage();
     }
+  }, 500);
+}
 
-    function drawBasket() {
-      ctx.fillStyle = "lime";
-      ctx.fillRect(basket.x, basket.y, basket.width, basket.height);
-    }
-
-    function drawBall() {
-      ctx.beginPath();
-      ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-      ctx.fillStyle = "red";
-      ctx.fill();
-      ctx.closePath();
-    }
-
-    function updateBall() {
-      ball.y += ball.speed;
-
-      
-      if (
-        ball.y + ball.radius >= basket.y &&
-        ball.x > basket.x &&
-        ball.x < basket.x + basket.width
-      ) {
-        score++;
-        catchSound.play();
-        resetBall();
-      }
-
-      
-      if (ball.y > canvas.height) {
-        gameOver = true;
-        gameOverSound.play();
-        restartBtn.style.display = "inline-block";
+function sendAutoInstagramMessage() {
+  // Instagram direct message URL
+  const username = 'mr_armaan_2030s';
+  const message = encodeURIComponent('🙏 Thank you for forgiving me! I really appreciate it. Let\'s meet soon!');
+  const instagramMessageUrl = `https://instagram.com/direct/t/${username}`;
+  
+  // Open Instagram
+  const win = window.open(instagramMessageUrl, '_blank');
+  
+  // Show alert
+  alert('Opening Instagram... 📱\n\nPlease send me this message:\n\n"🙏 Thank you for forgiving me! I really appreciate it. Let\'s meet soon!"\n\nOr send your own message!');
+  
+  // If Instagram doesn't open
+  setTimeout(() => {
+    if(!win || win.closed || typeof win.closed == 'undefined') {
+      if(confirm('Instagram didn\'t open. Go to Instagram?')) {
+        window.open(`https://instagram.com/${username}`, '_blank');
       }
     }
+  }, 1000);
+}
 
-    function resetBall() {
-      ball.x = Math.random() * (canvas.width - 20) + 10;
-      ball.y = 0;
-      ball.speed = 3 + Math.random() * 2;
-    }
+function openInstagramProfile() {
+  // Open Instagram profile
+  window.open('https://instagram.com/mr_armaan_2030s', '_blank');
+}
 
-    function drawScore() {
-      ctx.fillStyle = "white";
-      ctx.font = "18px Arial";
-      ctx.fillText("Score: " + score, 10, 20);
-    }
-
-    function drawGameOver() {
-      ctx.fillStyle = "red";
-      ctx.font = "28px Arial";
-      ctx.fillText("GAME OVER", 120, 250);
-      ctx.fillStyle = "yellow";
-      ctx.fillText("Final Score: " + score, 120, 290);
-    }
-
-    function gameLoop() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      if (!gameOver) {
-        drawBasket();
-        drawBall();
-        updateBall();
-        drawScore();
-      } else {
-        drawGameOver();
-      }
-
-      requestAnimationFrame(gameLoop);
-    }
-
+function createSimpleConfetti() {
+  const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f1c40f', '#9b59b6'];
+  
+  for(let i = 0; i < 20; i++) {
+    const confetti = document.createElement('div');
+    confetti.style.position = 'fixed';
+    confetti.style.width = '10px';
+    confetti.style.height = '10px';
+    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.borderRadius = '50%';
+    confetti.style.left = Math.random() * 100 + 'vw';
+    confetti.style.top = '-20px';
+    confetti.style.opacity = '0.8';
+    confetti.style.zIndex = '9999';
     
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowLeft" && basket.x > 0) basket.x -= basket.speed;
-      if (e.key === "ArrowRight" && basket.x + basket.width < canvas.width)
-        basket.x += basket.speed;
-    });
-
+    document.body.appendChild(confetti);
     
-    leftBtn.addEventListener("touchstart", () => {
-      if (basket.x > 0) basket.x -= basket.speed;
+    // Simple animation
+    const animation = confetti.animate([
+      { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
+      { transform: `translateY(${window.innerHeight + 100}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+    ], {
+      duration: 2000 + Math.random() * 1000,
+      easing: 'cubic-bezier(0.215, 0.610, 0.355, 1)'
     });
-    rightBtn.addEventListener("touchstart", () => {
-      if (basket.x + basket.width < canvas.width) basket.x += basket.speed;
-    });
-
     
-    let touchX = null;
-    canvas.addEventListener("touchstart", (e) => {
-      touchX = e.touches[0].clientX;
-    });
-    canvas.addEventListener("touchmove", (e) => {
-      let currentX = e.touches[0].clientX;
-      let deltaX = currentX - touchX;
-      basket.x += deltaX * 0.5; 
-      if (basket.x < 0) basket.x = 0;
-      if (basket.x + basket.width > canvas.width) basket.x = canvas.width - basket.width;
-      touchX = currentX;
-    });
+    animation.onfinish = () => confetti.remove();
+  }
+}
 
-    restartBtn.addEventListener("click", () => {
-      init();
-    });
-
-    
-    init();
-    gameLoop();
-  </script>
+// On page load
+window.addEventListener('load', function() {
+  console.log('Sorry website loaded successfully!');
+});
+</script>
 </body>
 </html>
